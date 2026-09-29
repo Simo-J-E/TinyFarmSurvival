@@ -5,12 +5,17 @@ signal died
 signal health_changed(current: int, maximum: int)
 
 const SPEED := 230.0
-const MAX_HEALTH := 100
+const DEFAULT_MAX_HEALTH := 100
 const PLAYER_TEXTURE := preload("res://assets/tiny_farm/Tiles/tile_0109.png")
 
-var health := MAX_HEALTH
+var max_health := DEFAULT_MAX_HEALTH
+var health := DEFAULT_MAX_HEALTH
 var can_move := true
 var aim_angle := 0.0
+
+func configure(starting_health: int) -> void:
+	max_health = max(starting_health, 1)
+	health = max_health
 
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -22,6 +27,7 @@ func _ready() -> void:
 	circle.radius = 12.0
 	shape.shape = circle
 	add_child(shape)
+	health_changed.emit(health, max_health)
 	queue_redraw()
 
 func _process(_delta: float) -> void:
@@ -49,13 +55,13 @@ func _physics_process(_delta: float) -> void:
 	move_and_slide()
 
 	global_position.x = clamp(global_position.x, 36.0, 924.0)
-	global_position.y = clamp(global_position.y, 70.0, 505.0)
+	global_position.y = clamp(global_position.y, 82.0, 505.0)
 
 func take_damage(amount: int) -> void:
 	if health <= 0:
 		return
 	health = max(health - amount, 0)
-	health_changed.emit(health, MAX_HEALTH)
+	health_changed.emit(health, max_health)
 	if health <= 0:
 		can_move = false
 		died.emit()
@@ -67,11 +73,9 @@ func get_aim_direction() -> Vector2:
 	return Vector2.RIGHT.rotated(aim_angle)
 
 func _draw() -> void:
-	# Shadow and real farmer player sprite from the uploaded Kenney pack.
 	draw_ellipse_shadow()
 	draw_texture_rect(PLAYER_TEXTURE, Rect2(-24, -28, 48, 48), false)
 
-	# Bow follows the mouse. It is intentionally a weapon, not a farm tool.
 	draw_set_transform(Vector2.ZERO, aim_angle, Vector2.ONE)
 	var bow_center := Vector2(20, 0)
 	var bow_color := Color("#8b572f")
@@ -88,7 +92,6 @@ func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func draw_ellipse_shadow() -> void:
-	# Godot has no draw_ellipse; a flattened polygon gives the same tiny-game look.
 	var points := PackedVector2Array()
 	for i in range(16):
 		var a := TAU * float(i) / 16.0

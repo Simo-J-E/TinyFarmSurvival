@@ -7,18 +7,20 @@ var tiles: Dictionary = {}
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	# Only load the pieces used by this hand-built map.
-	for index in [0, 1, 12, 13, 24, 25, 36, 37, 48, 49, 50, 51, 60, 61, 62, 63, 3, 15, 27, 39, 44, 54, 66, 68, 78, 80, 83, 89, 93, 94, 95, 96, 97, 98, 99, 105, 106, 107, 110, 111, 112, 113, 118, 119, 126, 127, 128, 129, 131]:
+	for index in [0, 1, 12, 13, 24, 25, 36, 37, 48, 49, 50, 51, 60, 61, 62, 63, 3, 15, 27, 39, 44, 54, 66, 68, 78, 80, 83, 89, 73, 87, 93, 94, 95, 96, 97, 98, 99, 105, 106, 107, 110, 111, 112, 113, 118, 119, 126, 127, 128, 129, 131]:
 		tiles[index] = load("res://assets/tiny_farm/Tiles/tile_%04d.png" % index)
 	queue_redraw()
 
 func _draw() -> void:
 	_draw_grass()
 	_draw_paths()
+	_draw_plot_bases()
 	_draw_tree_border()
 	_draw_barn_area()
 	_draw_crop_fields()
 	_draw_animal_pen()
 	_draw_details()
+	_draw_soft_border()
 
 func _tile(index: int, cell: Vector2i, size := Vector2(TILE, TILE)) -> void:
 	if not tiles.has(index):
@@ -59,6 +61,15 @@ func _draw_paths() -> void:
 	_tile(36, Vector2i(14, 15))
 	_tile(37, Vector2i(15, 15))
 	draw_rect(Rect2(14 * TILE + 5, 7 * TILE + 5, TILE * 2 - 10, TILE * 2 - 10), Color("#d4935e"))
+
+
+func _draw_plot_bases() -> void:
+	# Clean soil areas underneath crops and the animal pen.
+	draw_rect(Rect2(612, 88, 246, 146), Color("#a76f4b"))
+	draw_rect(Rect2(618, 94, 234, 134), Color("#b97d54"))
+	draw_rect(Rect2(612, 334, 246, 150), Color("#9e6948"))
+	draw_rect(Rect2(618, 340, 234, 138), Color("#b77a52"))
+	draw_rect(Rect2(112, 356, 296, 142), Color(0.63, 0.43, 0.29, 0.45))
 
 func _draw_tree_border() -> void:
 	for x in range(0, 30):
@@ -115,6 +126,7 @@ func _draw_animal_pen() -> void:
 		_prop(93, Vector2(384, y * TILE))
 	_prop(111, Vector2(180, 416), Vector2(64, 32))
 	_prop(112, Vector2(275, 415), Vector2(64, 32))
+	_prop(73, Vector2(330, 442), Vector2(42, 42))
 
 func _draw_details() -> void:
 	# Rocks, bushes and small plants make the map feel handmade without blocking combat.
@@ -124,3 +136,8 @@ func _draw_details() -> void:
 		_prop(39, p)
 	for p in [Vector2(395, 82), Vector2(540, 455), Vector2(880, 112)]:
 		_prop(80, p)
+	_prop(87, Vector2(524, 278), Vector2(40, 40))
+
+func _draw_soft_border() -> void:
+	# A subtle frame makes both gameplay and the menu background feel more finished.
+	draw_rect(Rect2(0, 0, 960, 540), Color(0.02, 0.08, 0.04, 0.28), false, 5.0)

@@ -12,6 +12,7 @@ const MONSTER_TEXTURES := [
 var target: SurvivalPlayer
 var speed := 82.0
 var health := 1
+var attack_damage := 20
 var attack_timer := 0.0
 var texture: Texture2D
 
@@ -38,7 +39,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	if global_position.distance_to(target.global_position) < 27.0 and attack_timer <= 0.0:
-		target.take_damage(20)
+		target.take_damage(attack_damage)
 		attack_timer = 0.65
 
 func take_damage(amount: int) -> void:
@@ -54,7 +55,6 @@ func _draw() -> void:
 		points.append(Vector2(cos(a) * 13.0, sin(a) * 6.0 + 11.0))
 	draw_colored_polygon(points, Color(0, 0, 0, 0.24))
 
-	# Hostile red glow behind the real Kenney farm creature sprite.
 	draw_circle(Vector2.ZERO, 17.0, Color(0.55, 0.08, 0.08, 0.35))
 	draw_texture_rect(texture, Rect2(-22, -24, 44, 44), false)
 	draw_circle(Vector2(-5, -4), 1.8, Color("#ff3030"))
